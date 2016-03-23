@@ -34,7 +34,8 @@ feature -- Test routines
 			l_mock: MOCK_COMMANDS
 		do
 			create l_mock
-			assert_strings_equal ("has_output", git_status_up_to_date, l_mock.github_status (mock_path))
+			l_mock.set_command_path (mock_path.parent)
+			assert_strings_equal ("has_output", git_status_up_to_date, l_mock.github_status)
 			assert_integers_equal ("no_error", 0, l_mock.last_error)
 		end
 
@@ -45,6 +46,49 @@ On branch master
 Your branch is up-to-date with 'origin/master'.
 nothing to commit, working directory clean
 
+]"
+
+	git_status_new_files: STRING = "[
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	git.txt
+	test.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+]"
+
+	git_status_changed_and_new_files: STRING = "[
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   tests/IG_TEST_PROJECT_test_set.e
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	git.txt
+	test.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+]"
+
+	git_status_3: STRING = "[
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+        files/
+
+nothing added to commit but untracked files present (use "git add" to track)
 ]"
 
 feature {NONE} -- Implementation: Constants
