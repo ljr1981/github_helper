@@ -37,15 +37,20 @@ feature -- Test routines
 			l_mock.set_command_path (mock_path.parent)
 
 				-- Ensure clean ...
-			assert_strings_equal ("hard_reset", hard_reset, l_mock.git_reset_hard.substring (1, hard_reset.count))
-			assert_strings_equal ("has_output", git_status_up_to_date, l_mock.github_status)
+			l_mock.git_reset_hard
+			assert_strings_equal ("hard_reset", hard_reset, l_mock.attached_command_results.substring (1, hard_reset.count))
+			l_mock.github_status
+			assert_strings_equal ("has_output", git_status_up_to_date, l_mock.attached_command_results)
 			assert_integers_equal ("no_error", 0, l_mock.last_error)
+			l_mock.github_status
 			assert_booleans_equal ("clean", True, l_mock.is_clean_working_directory)
 
 				-- File deleting ...
 			delete_directory_content (mock_deleted_file_1.parent)
-			assert_strings_equal ("deleted_1_and_2", deleted_1_and_2, l_mock.github_status)
-			assert_strings_equal ("hard_reset", hard_reset, l_mock.git_reset_hard.substring (1, hard_reset.count))
+			l_mock.github_status
+			assert_strings_equal ("deleted_1_and_2", deleted_1_and_2, l_mock.attached_command_results)
+			l_mock.git_reset_hard
+			assert_strings_equal ("hard_reset", hard_reset, l_mock.attached_command_results.substring (1, hard_reset.count))
 
 				-- File modifying ...
 
@@ -56,7 +61,8 @@ feature -- Test routines
 --			delete_directory_content (mock_add_file_1.parent)
 
 				-- Cleanup ...
-			assert_strings_equal ("hard_reset", hard_reset, l_mock.git_reset_hard.substring (1, hard_reset.count))
+			l_mock.git_reset_hard
+			assert_strings_equal ("hard_reset", hard_reset, l_mock.attached_command_results.substring (1, hard_reset.count))
 		end
 
 feature {NONE} -- Implementation: Mocks
@@ -184,12 +190,9 @@ feature {NONE} -- Implementation: Basic Operations
 		end
 
 	delete_directory_content (a_path: PATH)
-			-- `'
-		local
-			l_directory: DIRECTORY
+			-- `delete_directory_content' at `a_path'.
 		do
-			create l_directory.make_with_path (a_path)
-			l_directory.delete_content
+			(create {DIRECTORY}.make_with_path (a_path)).delete_content
 		end
 
 feature {NONE} -- Implementation: Constants
