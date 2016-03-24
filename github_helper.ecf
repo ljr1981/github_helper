@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-15-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-15-0 http://www.eiffel.com/developers/xml/configuration-1-15-0.xsd" name="github_helper" uuid="4EDC4A5D-8F56-4224-9542-E2A34D5DA2EE" readonly="false">
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-15-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-15-0 http://www.eiffel.com/developers/xml/configuration-1-15-0.xsd" name="github_helper" uuid="4EDC4A5D-8F56-4224-9542-E2A34D5DA2EE" library_target="github_helper">
 	<description>github_helper implementation</description>
 	<target name="github_helper">
 		<root all_classes="true"/>
@@ -8,7 +8,6 @@
 		</option>
 		<setting name="console_application" value="true"/>
 		<setting name="concurrency" value="thread"/>
-		<precompile name="base-mt-safe_precompile" location="$ISE_EIFFEL\precomp\spec\windows\base-mt-safe.ecf"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
 		<library name="framework" location="$GITHUB\Framework\framework.ecf"/>
 		<library name="process" location="$ISE_LIBRARY\library\process\process-safe.ecf"/>

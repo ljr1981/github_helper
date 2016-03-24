@@ -35,8 +35,28 @@ feature -- Test routines
 		do
 			create l_mock
 			l_mock.set_command_path (mock_path.parent)
+
+				-- Ensure clean ...
+			assert_strings_equal ("hard_reset", hard_reset, l_mock.git_reset_hard.substring (1, hard_reset.count))
 			assert_strings_equal ("has_output", git_status_up_to_date, l_mock.github_status)
 			assert_integers_equal ("no_error", 0, l_mock.last_error)
+			assert_booleans_equal ("clean", True, l_mock.is_clean_working_directory)
+
+				-- File deleting ...
+			delete_directory_content (mock_deleted_file_1.parent)
+			assert_strings_equal ("deleted_1_and_2", deleted_1_and_2, l_mock.github_status)
+			assert_strings_equal ("hard_reset", hard_reset, l_mock.git_reset_hard.substring (1, hard_reset.count))
+
+				-- File modifying ...
+
+				-- File adding ...
+--			make_add_file_1
+--			assert_strings_equal ("has_added_1", has_added_1, l_mock.github_status)
+--			assert_strings_equal ("added_1", "", l_mock.git_add (mock_add_file_1))
+--			delete_directory_content (mock_add_file_1.parent)
+
+				-- Cleanup ...
+			assert_strings_equal ("hard_reset", hard_reset, l_mock.git_reset_hard.substring (1, hard_reset.count))
 		end
 
 feature {NONE} -- Implementation: Mocks
@@ -48,48 +68,129 @@ nothing to commit, working directory clean
 
 ]"
 
-	git_status_new_files: STRING = "[
+	has_added_1: STRING = "[
 On branch master
 Your branch is up-to-date with 'origin/master'.
 Untracked files:
   (use "git add <file>..." to include in what will be committed)
 
-	git.txt
-	test.txt
+	files/files_added/
 
 nothing added to commit but untracked files present (use "git add" to track)
 
 ]"
 
-	git_status_changed_and_new_files: STRING = "[
+	deleted_1_and_2: STRING = "[
 On branch master
 Your branch is up-to-date with 'origin/master'.
 Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
+  (use "git add/rm <file>..." to update what will be committed)
   (use "git checkout -- <file>..." to discard changes in working directory)
 
-	modified:   tests/IG_TEST_PROJECT_test_set.e
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-
-	git.txt
-	test.txt
+	deleted:    files/files_deleted/delete_me_1.txt
+	deleted:    files/files_deleted/delete_me_2.txt
 
 no changes added to commit (use "git add" and/or "git commit -a")
 
 ]"
 
-	git_status_3: STRING = "[
-On branch master
-Your branch is up-to-date with 'origin/master'.
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
+	hard_reset: STRING = "HEAD is now at"
 
-        files/
+feature {NONE} -- Implementation: Files
 
-nothing added to commit but untracked files present (use "git add" to track)
-]"
+	mock_files_path: PATH
+			-- `mock_files_path' = "$GITHUB\ig_test_project\files"
+		do
+			create Result.make_from_string (mock_path.parent.name.out + "\files")
+		end
+
+	mock_files_added_path: PATH
+			-- `mock_files_added_path' = "$GITHUB\ig_test_project\files\files_added"
+		do
+			create Result.make_from_string (mock_path.parent.name.out + "\files\files_added")
+		end
+
+	mock_add_file_1: PATH
+			-- `mock_add_file_1' = "$GITHUB\ig_test_project\files\files_added\added_file_1.txt"
+		note
+			design: "[
+				This file does NOT exist on the file system until it is created by this test
+				set. Even then, it is created, tested for, and then deleted and removed from
+				the repository.
+				]"
+		do
+			create Result.make_from_string (mock_files_added_path.name.out + "\added_file_1.txt")
+		end
+
+	mock_add_file_2: PATH
+			-- `mock_add_file_2' = "$GITHUB\ig_test_project\files\files_added\added_file_2.txt"
+		note
+			design: "[
+				This file does NOT exist on the file system until it is created by this test
+				set. Even then, it is created, tested for, and then deleted and removed from
+				the repository.
+				]"
+		do
+			create Result.make_from_string (mock_files_added_path.name.out + "\added_file_2.txt")
+		end
+
+	mock_files_deleted_path: PATH
+			-- `mock_files_deleted_path' = "$GITHUB\ig_test_project\files\files_deleted"
+		do
+			create Result.make_from_string (mock_path.parent.name.out + "\files\files_deleted")
+		end
+
+	mock_deleted_file_1: PATH
+			-- `mock_deleted_file_1' = "$GITHUB\ig_test_project\files\files_added\deleted_file_1.txt"
+		do
+			create Result.make_from_string (mock_files_deleted_path.name.out + "\deleted_file_1.txt")
+		end
+
+	mock_deleted_file_2: PATH
+			-- `mock_deleted_file_2' = "$GITHUB\ig_test_project\files\files_added\deleted_file_2.txt"
+		do
+			create Result.make_from_string (mock_files_deleted_path.name.out + "\deleted_file_2.txt")
+		end
+
+	mock_files_modified_path: PATH
+			-- `mock_files_modified_path' = "$GITHUB\ig_test_project\files\files_modified"
+		do
+			create Result.make_from_string (mock_path.parent.name.out + "\files\files_modified")
+		end
+
+	mock_modified_file_1: PATH
+			-- `mock_modified_file_1' = "$GITHUB\ig_test_project\files\files_added\modified_file_1.txt"
+		do
+			create Result.make_from_string (mock_files_modified_path.name.out + "\modified_file_1.txt")
+		end
+
+	mock_modified_file_2: PATH
+			-- `mock_modified_file_2' = "$GITHUB\ig_test_project\files\files_added\modified_file_2.txt"
+		do
+			create Result.make_from_string (mock_files_modified_path.name.out + "\modified_file_2.txt")
+		end
+
+feature {NONE} -- Implementation: Basic Operations
+
+	make_add_file_1
+			-- `make_add_file_1'.
+		local
+			l_file: PLAIN_TEXT_FILE
+		do
+			create l_file.make_create_read_write (mock_add_file_1.name.out)
+			l_file.put_string ("added_text")
+			l_file.flush
+			l_file.close
+		end
+
+	delete_directory_content (a_path: PATH)
+			-- `'
+		local
+			l_directory: DIRECTORY
+		do
+			create l_directory.make_with_path (a_path)
+			l_directory.delete_content
+		end
 
 feature {NONE} -- Implementation: Constants
 
