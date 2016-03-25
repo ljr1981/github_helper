@@ -10,6 +10,7 @@
 		<setting name="concurrency" value="thread"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base-safe.ecf"/>
 		<library name="framework" location="$GITHUB\Framework\framework.ecf"/>
+		<library name="logging_extension" location="$GITHUB\logging_extension\logging_extension.ecf"/>
 		<library name="process" location="$ISE_LIBRARY\library\process\process-safe.ecf"/>
 		<library name="pub_sub" location="$GITHUB\pub_sub\pub_sub.ecf"/>
 		<library name="randomizer" location="$GITHUB\randomizer\randomizer.ecf"/>
@@ -41,7 +42,6 @@
 		<option profile="false">
 		</option>
 		<setting name="console_application" value="true"/>
-		<setting name="concurrency" value="thread"/>
 		<library name="testing" location="$ISE_LIBRARY\library\testing\testing-safe.ecf"/>
 		<cluster name="tests" location=".\tests\" recursive="true"/>
 	</target>

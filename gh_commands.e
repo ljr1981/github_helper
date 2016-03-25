@@ -13,6 +13,8 @@ deferred class
 	GH_COMMANDS
 
 inherit
+	GH_ANY
+
 	FW_PROCESS_HELPER
 
 feature -- Access
@@ -49,6 +51,18 @@ feature -- Settings
 
 feature -- Status Report
 
+	is_git_exe_available: BOOLEAN
+			-- `is_git_exe_available' for running git commands?
+		do
+			Result := git_exe_is_found_by_DOS_where xor attached last_git_exe_path
+		end
+
+	git_exe_is_found_by_DOS_where: BOOLEAN
+			-- `git_exe_is_found_by_DOS_where'?
+		do
+			Result := has_file_in_path ("git.exe")
+		end
+
 	is_clean_working_directory: BOOLEAN
 			-- `is_clean_working_directory'?
 		do
@@ -82,16 +96,61 @@ feature -- Status Report
 
 feature -- Basic Operations
 
+	set_git_exe_path
+			-- `set_git_exe_path'.
+		require
+			not_has_git_exe: not is_git_exe_available
+		local
+			l_env: EXECUTION_ENVIRONMENT
+			l_value: STRING
+			l_dir: DIRECTORY
+			l_path: PATH
+			l_exception: EXCEPTION
+			l_scanner: GH_GIT_EXE_SCANNER
+		do
+			create l_env
+			if attached l_env.starting_environment.at ("LOCALAPPDATA") as al_local_appdata_path_string then
+				create l_path.make_from_string (al_local_appdata_path_string + "\Github")
+				create l_dir.make_with_path (l_path)
+				if l_dir.exists then
+					create l_scanner
+					l_scanner.scan_path (l_path, 0)
+					if attached l_scanner.last_git_exe_path as al_path then
+--						output_of_command ("SET PATH=%%PATH%%;" + al_path.name.out, "").do_nothing
+						last_git_exe_path := al_path
+					else
+						create l_exception
+						l_exception.set_description ("Missing LOCALAPPDATA Github git.exe file. Ensure Github Desktop App is installed.")
+						l_exception.raise
+					end
+				else
+					create l_exception
+					l_exception.set_description ("Missing LOCALAPPDATA Github folder. Ensure Github Desktop App is installed.")
+					l_exception.raise
+				end
+			else
+				create l_exception
+				l_exception.set_description ("Missing LOCALAPPDATA Environment Varaible.")
+				l_exception.raise
+			end
+		ensure
+			has_git_exe: is_git_exe_available
+		end
+
 	github_status
+		require
+			has_git_exe: is_git_exe_available
 		do
 			last_command_results := Void
-			last_command_results := output_of_command ("git status", attached_command_path.name.out)
+			last_command_results := output_of_command (attached_last_git_exe_path.name.out + "\git status", attached_command_path.name.out)
 		end
 
 	git_add (a_file_path: PATH)
+		require
+			has_git_exe: is_git_exe_available
 		do
 			last_command_results := Void
-			last_command_results := output_of_command ("git add " + a_file_path.name.out, attached_command_path.parent.name.out)
+			last_command_results := output_of_command (attached_last_git_exe_path.name.out + "\git add " + a_file_path.name.out, attached_command_path.parent.name.out)
 		end
 
 	git_reset_hard
@@ -105,15 +164,19 @@ feature -- Basic Operations
 			EIS: "src=https://git-scm.com/docs/git-reset"
 			EIS: "name=fetch_and_merge_instead_of_pull",
 					"src=http://longair.net/blog/2009/04/16/git-fetch-and-merge/"
+		require
+			has_git_exe: is_git_exe_available
 		do
 			last_command_results := Void
-			last_command_results := output_of_command ("git reset --hard", attached_command_path.name.out)
+			last_command_results := output_of_command (attached_last_git_exe_path.name.out + "\git reset --hard", attached_command_path.name.out)
 		end
 
 	git_pull
 		note
 			spec: "git pull [options] [<repository> [<refspec>…​]]"
 			EIS: "src=https://git-scm.com/docs/git-pull"
+		require
+			has_git_exe: is_git_exe_available
 		local
 			l_options,
 			l_repository,
@@ -123,7 +186,7 @@ feature -- Basic Operations
 			create l_repository.make_empty
 			create l_repository_spec.make_empty
 			last_command_results := Void
-			last_command_results := output_of_command ("git pull " + l_options + l_repository + l_repository_spec, attached_command_path.name.out)
+			last_command_results := output_of_command (attached_last_git_exe_path.name.out + "\git pull " + l_options + l_repository + l_repository_spec, attached_command_path.name.out)
 		end
 
 	git_fetch_dry_run
@@ -131,9 +194,11 @@ feature -- Basic Operations
 		note
 			spec: "git fetch --dry-run"
 			EIS: "src=https://git-scm.com/docs/git-fetch"
+		require
+			has_git_exe: is_git_exe_available
 		do
 			last_command_results := Void
-			last_command_results := output_of_command ("git fetch --dry-run", attached_command_path.name.out)
+			last_command_results := output_of_command (attached_last_git_exe_path.name.out + "\git fetch --dry-run", attached_command_path.name.out)
 		end
 
 feature {TEST_SET_HELPER} -- Implementation
@@ -150,6 +215,16 @@ feature {TEST_SET_HELPER} -- Implementation
 
 feature {TEST_SET_HELPER} -- Implementation: Constants
 
+	attached_last_git_exe_path: PATH
+			-- `attached_last_git_exe_path' version of `last_git_exe_path'.
+		once
+			check has_exe_path: attached last_git_exe_path as al_path then Result := al_path end
+		end
+
+	last_git_exe_path: detachable PATH
+			-- The `last_git_exe_path' computed.
+
 	clean_message: STRING = "nothing to commit, working directory clean"
+			-- `clean_message' = "nothing to commit, working directory clean".
 
 end

@@ -28,6 +28,14 @@ inherit
 
 feature -- Test routines
 
+	git_finder_test
+		local
+			l_mock: MOCK_COMMANDS
+		do
+			create l_mock
+			l_mock.set_git_exe_path
+		end
+
 	basic_tests
 			-- `abc_tests'
 		local
@@ -35,6 +43,7 @@ feature -- Test routines
 		do
 			create l_mock
 			l_mock.set_command_path (mock_path.parent)
+			l_mock.set_git_exe_path
 
 				-- Ensure clean ...
 			l_mock.git_reset_hard
