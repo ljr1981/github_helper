@@ -71,6 +71,12 @@ feature -- Status Report
 			end
 		end
 
+	has_local_git_changes: BOOLEAN
+			-- `has_local_git_changes'.
+		do
+			Result := not is_clean_working_directory
+		end
+
 	has_remote_github_changes: BOOLEAN
 			-- `has_remote_github_changes'?
 			-- Presumes that an empty Result = no remote changes.
