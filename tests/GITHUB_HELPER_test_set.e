@@ -114,19 +114,19 @@ no changes added to commit (use "git add" and/or "git commit -a")
 feature {NONE} -- Implementation: Files
 
 	mock_files_path: PATH
-			-- `mock_files_path' = "$GITHUB\ig_test_project\files"
+			-- `mock_files_path' = "..\ig_test_project\files"
 		do
 			create Result.make_from_string (mock_path.parent.name.out + "\files")
 		end
 
 	mock_files_added_path: PATH
-			-- `mock_files_added_path' = "$GITHUB\ig_test_project\files\files_added"
+			-- `mock_files_added_path' = "..\ig_test_project\files\files_added"
 		do
 			create Result.make_from_string (mock_path.parent.name.out + "\files\files_added")
 		end
 
 	mock_add_file_1: PATH
-			-- `mock_add_file_1' = "$GITHUB\ig_test_project\files\files_added\added_file_1.txt"
+			-- `mock_add_file_1' = "..\ig_test_project\files\files_added\added_file_1.txt"
 		note
 			design: "[
 				This file does NOT exist on the file system until it is created by this test
@@ -138,7 +138,7 @@ feature {NONE} -- Implementation: Files
 		end
 
 	mock_add_file_2: PATH
-			-- `mock_add_file_2' = "$GITHUB\ig_test_project\files\files_added\added_file_2.txt"
+			-- `mock_add_file_2' = "..\ig_test_project\files\files_added\added_file_2.txt"
 		note
 			design: "[
 				This file does NOT exist on the file system until it is created by this test
@@ -150,37 +150,37 @@ feature {NONE} -- Implementation: Files
 		end
 
 	mock_files_deleted_path: PATH
-			-- `mock_files_deleted_path' = "$GITHUB\ig_test_project\files\files_deleted"
+			-- `mock_files_deleted_path' = "..\ig_test_project\files\files_deleted"
 		do
 			create Result.make_from_string (mock_path.parent.name.out + "\files\files_deleted")
 		end
 
 	mock_deleted_file_1: PATH
-			-- `mock_deleted_file_1' = "$GITHUB\ig_test_project\files\files_added\deleted_file_1.txt"
+			-- `mock_deleted_file_1' = "..\ig_test_project\files\files_added\deleted_file_1.txt"
 		do
 			create Result.make_from_string (mock_files_deleted_path.name.out + "\deleted_file_1.txt")
 		end
 
 	mock_deleted_file_2: PATH
-			-- `mock_deleted_file_2' = "$GITHUB\ig_test_project\files\files_added\deleted_file_2.txt"
+			-- `mock_deleted_file_2' = "..\ig_test_project\files\files_added\deleted_file_2.txt"
 		do
 			create Result.make_from_string (mock_files_deleted_path.name.out + "\deleted_file_2.txt")
 		end
 
 	mock_files_modified_path: PATH
-			-- `mock_files_modified_path' = "$GITHUB\ig_test_project\files\files_modified"
+			-- `mock_files_modified_path' = "..\ig_test_project\files\files_modified"
 		do
 			create Result.make_from_string (mock_path.parent.name.out + "\files\files_modified")
 		end
 
 	mock_modified_file_1: PATH
-			-- `mock_modified_file_1' = "$GITHUB\ig_test_project\files\files_added\modified_file_1.txt"
+			-- `mock_modified_file_1' = "..\ig_test_project\files\files_added\modified_file_1.txt"
 		do
 			create Result.make_from_string (mock_files_modified_path.name.out + "\modified_file_1.txt")
 		end
 
 	mock_modified_file_2: PATH
-			-- `mock_modified_file_2' = "$GITHUB\ig_test_project\files\files_added\modified_file_2.txt"
+			-- `mock_modified_file_2' = "..\ig_test_project\files\files_added\modified_file_2.txt"
 		do
 			create Result.make_from_string (mock_files_modified_path.name.out + "\modified_file_2.txt")
 		end
