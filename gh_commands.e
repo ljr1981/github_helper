@@ -54,7 +54,7 @@ feature -- Status Report
 	is_git_exe_available: BOOLEAN
 			-- `is_git_exe_available' for running git commands?
 		do
-			Result := git_exe_is_found_by_DOS_where xor attached last_git_exe_path
+			Result := git_exe_is_found_by_DOS_where or attached last_git_exe_path
 		end
 
 	git_exe_is_found_by_DOS_where: BOOLEAN
@@ -104,8 +104,8 @@ feature -- Basic Operations
 
 	set_git_exe_path
 			-- `set_git_exe_path'.
-		require
-			not_has_git_exe: not is_git_exe_available
+--		require
+--			not_has_git_exe: not is_git_exe_available
 		local
 			l_env: EXECUTION_ENVIRONMENT
 			l_value: STRING
@@ -113,31 +113,43 @@ feature -- Basic Operations
 			l_path: PATH
 			l_exception: EXCEPTION
 			l_scanner: GH_GIT_EXE_SCANNER
+				-- List
+			l_list: LIST [STRING]
+			l_line,
+			l_output: STRING
 		do
-			create l_env
-			if attached l_env.starting_environment.at ("LOCALAPPDATA") as al_local_appdata_path_string then
-				create l_path.make_from_string (al_local_appdata_path_string + "\Github")
-				create l_dir.make_with_path (l_path)
-				if l_dir.exists then
-					create l_scanner
-					l_scanner.scan_path (l_path, 0)
-					if attached l_scanner.last_git_exe_path as al_path then
---						output_of_command ("SET PATH=%%PATH%%;" + al_path.name.out, "").do_nothing
-						last_git_exe_path := al_path
+			if is_git_exe_available then
+				l_output := output_of_command ("where git.exe", "")
+				l_list := l_output.split ('%N')
+				l_line := l_list [1]
+				l_line.replace_substring_all ("\git.exe%R", "")
+				create last_git_exe_path.make_from_string (l_line)
+			else
+				create l_env
+				if attached l_env.starting_environment.at ("LOCALAPPDATA") as al_local_appdata_path_string then
+					create l_path.make_from_string (al_local_appdata_path_string + "\Github")
+					create l_dir.make_with_path (l_path)
+					if l_dir.exists then
+						create l_scanner
+						l_scanner.scan_path (l_path, 0)
+						if attached l_scanner.last_git_exe_path as al_path then
+	--						output_of_command ("SET PATH=%%PATH%%;" + al_path.name.out, "").do_nothing
+							last_git_exe_path := al_path
+						else
+							create l_exception
+							l_exception.set_description ("Missing LOCALAPPDATA Github git.exe file. Ensure Github Desktop App is installed.")
+							l_exception.raise
+						end
 					else
 						create l_exception
-						l_exception.set_description ("Missing LOCALAPPDATA Github git.exe file. Ensure Github Desktop App is installed.")
+						l_exception.set_description ("Missing LOCALAPPDATA Github folder. Ensure Github Desktop App is installed.")
 						l_exception.raise
 					end
 				else
 					create l_exception
-					l_exception.set_description ("Missing LOCALAPPDATA Github folder. Ensure Github Desktop App is installed.")
+					l_exception.set_description ("Missing LOCALAPPDATA Environment Varaible.")
 					l_exception.raise
 				end
-			else
-				create l_exception
-				l_exception.set_description ("Missing LOCALAPPDATA Environment Varaible.")
-				l_exception.raise
 			end
 		ensure
 			has_git_exe: is_git_exe_available
@@ -230,7 +242,7 @@ feature {TEST_SET_HELPER} -- Implementation: Constants
 	last_git_exe_path: detachable PATH
 			-- The `last_git_exe_path' computed.
 
-	clean_message: STRING = "nothing to commit, working directory clean"
-			-- `clean_message' = "nothing to commit, working directory clean".
+	clean_message: STRING = "nothing to commit, working tree clean"
+			-- `clean_message' = "nothing to commit, working tree clean".
 
 end
